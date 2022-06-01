@@ -1,21 +1,14 @@
-ROWS_DICT = {
-    1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e',
-    6: 'f', 7: 'g', 8: 'h', 9: 'i', 10: 'j'
-}
-
-
-def get_key(dictionary, value):
-    for key, val in dictionary.items():
-        if val == value:
-            return key
+from constants import ROWS_DICT
+from core import get_key
 
 
 class Pole:
     """Class that represents the Pole model."""
+    # Constants for pole fields.
     empty_field = [0]
     ship_field = [4]
     dead_field = [2]
-    pole = None
+    pole: dict = None
 
     def __init__(self, name: str, size=10):
         self.name = name
@@ -32,6 +25,14 @@ class Pole:
         self.pole = pole
         return self.pole
 
+    def get_field_value(self, coordinates: tuple):
+        """Method that gets field of pole via coordinates."""
+        if (
+                coordinates[0] in ROWS_DICT.values()
+                and coordinates[1] in ROWS_DICT.keys()
+        ):
+            return self.pole[coordinates[0]][coordinates[1] - 1]
+
     def view_pole(self):
         """Shows a pole in pretty view."""
         if self.pole:
@@ -40,6 +41,22 @@ class Pole:
                 print(*self.pole[row], end='\n',)
         else:
             print("\nCreate pole first!\n")
+
+    def shoot(self, coordinates: tuple):
+        """Method that allows you to shoot on fields
+        and if succeeded change damaged field with a dead flag.
+        """
+        field = self.get_field_value(coordinates)
+        if field == self.empty_field:
+            print('\nMiss!')
+            self.view_pole()
+        elif field == self.dead_field:
+            print('\nYou already got it, try another field to shoot on!')
+            self.view_pole()
+        else:
+            self.pole[coordinates[0]][coordinates[1] - 1] = self.dead_field
+            print(f'\nYou got it!')
+            self.view_pole()
 
     def __str__(self) -> str:
         return self.name
@@ -72,7 +89,7 @@ class Ship:
                 first_key += 1
             self.pole.view_pole()
 
-    def show(self):
+    def show_stats(self):
         """Show ship stats."""
         print(
             '\nHere are the stats of the ship you have chosen:\n'
